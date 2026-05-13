@@ -245,7 +245,7 @@ tbody td.dim { color:var(--muted); }
 // ═══════════════════════════════════════════════════════
 //  !! 請將下方網址換成你的 Apps Script 部署網址 !!
 // ═══════════════════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycbzvgGPuEXRd6ZIEuX-AiNC-gKnyHzAGnhJK4zRs3rkpHT_sNVl7HtDNytujDloAWY5dbw/execE';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzvgGPuEXRd6ZIEuX-AiNC-gKnyHzAGnhJK4zRs3rkpHT_sNVl7HtDNytujDloAWY5dbw/exec';
 // ═══════════════════════════════════════════════════════
 
 const PHASES = ["購地階段","規劃設計/執照申請階段","銷售階段","營建階段","交屋營運階段","貸款/稅務","竣工階段"];
@@ -261,18 +261,11 @@ function setLoading(on) {
   else    { bar.className = 'loading-bar done'; setTimeout(() => bar.className = 'loading-bar', 300); }
 }
 
-// ── API helpers ──
-async function apiFetch(params) {
+// ── API helper（全部用 GET）──
+async function apiCall(params) {
   const url = API_URL + '?' + new URLSearchParams(params);
   const res = await fetch(url);
-  return res.json();
-}
-
-async function apiPost(body) {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    body: JSON.stringify(body)
-  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
   return res.json();
 }
 
@@ -286,7 +279,7 @@ async function loadAll() {
   }
   setLoading(true);
   try {
-    const data = await apiFetch({ action: 'get' });
+    const data = await apiCall({ action: 'getAll' });
     if (data.status === 'ok') {
       records = data.records.map(r => ({ ...r, amount: Number(r.amount) }));
       setStatus('已連線', 'ok');
@@ -342,7 +335,7 @@ async function addRecord() {
   const record = { id: Date.now(), date, seq: seqVal, project, phase,
                    item, detail, content, target, method, amount, receipt, note };
   try {
-    const res = await apiPost({ action: 'add', record });
+    const res = await apiCall({ action: 'add', data: JSON.stringify(record) });
     if (res.status === 'ok') {
       records.push(record);
       renderAll();
@@ -368,7 +361,7 @@ async function deleteRecord(id) {
   setLoading(true);
 
   try {
-    const res = await apiPost({ action: 'delete', id });
+    const res = await apiCall({ action: 'delete', id });
     if (res.status === 'ok') {
       records = records.filter(r => r.id !== id);
       // 重新排序本地序號
