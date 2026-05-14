@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>支出管理系統</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f26522">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="支出管理">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -271,7 +280,7 @@ async function apiCall(params) {
 
 // ── 初次載入所有記錄 ──
 async function loadAll() {
-  if (API_URL === 'https://script.google.com/macros/s/AKfycbzvgGPuEXRd6ZIEuX-AiNC-gKnyHzAGnhJK4zRs3rkpHT_sNVl7HtDNytujDloAWY5dbw/exec') {
+  if (false) {
     setStatus('尚未設定 API', 'err');
     document.getElementById('records-tbody').innerHTML =
       '<tr><td colspan="13"><div class="empty">請先在 HTML 檔案中填入 Apps Script 部署網址（API_URL）</div></td></tr>';
@@ -487,6 +496,15 @@ document.querySelector('.input-band').addEventListener('keydown', e => {
 });
 
 loadAll();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('SW registered'))
+      .catch(e => console.log('SW error', e));
+  });
+}
 </script>
 </body>
 </html>
